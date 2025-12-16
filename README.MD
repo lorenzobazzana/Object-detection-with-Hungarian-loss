@@ -17,6 +17,9 @@ Three backbones were used in the experiments:
 
 Both resnets use pretrained weights from ImageNet.
 
+<img src="images/network_architecture.png" width="75%">
+
+
 ## Loss function
 
 The loss function follows DETR's implementation: the Hungarian algorithm is used to match each GT element with the most similar query (with a cost based on the class, the IoU between the boxes and the MAE between the box center coordinates, height and width). The final loss is:
