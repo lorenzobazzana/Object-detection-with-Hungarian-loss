@@ -17,7 +17,7 @@ Three backbones were used in the experiments:
 
 Both resnets use pretrained weights from ImageNet.
 
-<img src="images/network_architecture.png" width="75%">
+<img src="images/network_architecture.png">
 
 
 ## Loss function
