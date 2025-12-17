@@ -83,7 +83,7 @@ This table shows the mAP by class, and the overall mAP and mAP@0.5. Again, the m
 
 For this project I only used a small portion of the actual DeepFashion2 dataset (21k images vs the ~500k of the whole dataset); moreover, because of resource costraints I could only test a small backbone, but it would be interesting to test bigger backbones (e.g. ResNet101 or Vision Transformers) and include the auxiliary losses used in DETR's training procedure at each Decoder layer. I also implemented a learnable loss weighting from [this paper](https://arxiv.org/abs/1705.07115), but didn't use it in the final training procedure; it would be worth comparing the final perfomances using it vs. different static weights for the loss components.
 
-## Citations
+## Citation
 
 If you found this project interesting and would like to use it, please cite it as below:
 
