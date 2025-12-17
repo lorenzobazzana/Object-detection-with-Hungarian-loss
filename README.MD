@@ -82,3 +82,26 @@ This table shows the mAP by class, and the overall mAP and mAP@0.5. Again, the m
 ## Final considerations
 
 For this project I only used a small portion of the actual DeepFashion2 dataset (21k images vs the ~500k of the whole dataset); moreover, because of resource costraints I could only test a small backbone, but it would be interesting to test bigger backbones (e.g. ResNet101 or Vision Transformers) and include the auxiliary losses used in DETR's training procedure at each Decoder layer. I also implemented a learnable loss weighting from [this paper](https://arxiv.org/abs/1705.07115), but didn't use it in the final training procedure; it would be worth comparing the final perfomances using it vs. different static weights for the loss components.
+
+## Citations
+
+If you found this project interesting and would like to use it, please cite it as below:
+
+```
+@software{Bazzana2025HungarianLoss,
+  author       = {Bazzana, Lorenzo},
+  title        = {Multi-object Detection with Hungarian Matching-Based Loss},
+  version      = {1.0.0},
+  year         = {2025},
+  month        = dec,
+  date         = {2025-12-16},
+  url          = {https://github.com/lorenzobazzana/Object-detection-with-Hungarian-loss},
+  note         = {ORCID: 0009-0001-9727-7019}
+}
+```
+
+## Bibliography
+
+[DETR](https://github.com/facebookresearch/detr) - Carion, N., Massa, F., Synnaeve, G., Usunier, N., Kirillov, A., & Zagoruyko, S. (2020). End-to-end object detection with transformers (arXiv:2005.12872). arXiv. https://arxiv.org/abs/2005.12872
+
+[DeepFashion2](https://github.com/switchablenorms/DeepFashion2) - Ge, Y., Zhang, R., Wu, L., Wang, X., Tang, X., & Luo, P. (2019). A versatile benchmark for detection, pose estimation, segmentation and re-identification of clothing images. Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR).
