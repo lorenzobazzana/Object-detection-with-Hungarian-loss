@@ -39,7 +39,7 @@ class Loss(nn.Module):
                 converted_boxes = self.cwh_box_to_x1x2(output_boxes[i])
                 converted_tgt_boxes = self.cwh_box_to_x1x2(target_boxes[i])
                 cost_giou = -self.generalized_box_iou(converted_boxes, converted_tgt_boxes)
-                cost_boxes = torch.cdist(converted_boxes, converted_tgt_boxes, p=1)
+                cost_boxes = torch.cdist(output_boxes[i], target_boxes[i], p=1)
                 cost = self.class_weight * cost_class + self.giou_weight * cost_giou + self.box_weight * cost_boxes 
                 indices.append(linear_sum_assignment(cost.cpu().numpy()))
 
@@ -67,11 +67,11 @@ class Loss(nn.Module):
 
         # Box loss (only for matched boxes)
         matched_boxes = output_boxes[batch_info,indices_src]
-        matched_boxes = self.cwh_box_to_x1x2(matched_boxes)
         _tgt_boxes = torch.cat([tgt[idxs] for tgt,idxs in zip(target_boxes, indices_tgt)])
-        converted_tgt_boxes = self.cwh_box_to_x1x2(_tgt_boxes)
+        box_loss = F.l1_loss(matched_boxes, _tgt_boxes, reduction='mean')
 
-        box_loss = F.l1_loss(matched_boxes, converted_tgt_boxes, reduction='mean')
+        matched_boxes = self.cwh_box_to_x1x2(matched_boxes)
+        converted_tgt_boxes = self.cwh_box_to_x1x2(_tgt_boxes)
         giou_loss = 1 - self.generalized_box_iou(matched_boxes, converted_tgt_boxes).diag()
         giou_loss = giou_loss.mean()
 
