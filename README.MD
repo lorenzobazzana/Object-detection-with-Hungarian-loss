@@ -51,32 +51,32 @@ The custom backbone detects many more items in each image compared to the other 
 
 The following images show the precision-recall curves for each class and the sample distribution for each class in the training split of the dataset. By comparing the two, it clearly appears that the classes for which the model struggles the most are the least represented in the train set (short sleeve outwear, sling, long sleeve dress, sling dress), all of which have less than 1000 samples. The "short sleeve dress" and "vest dress" classes have between 1000 and 2000 samples, and it can clearly be seen that the curve tail before the decay is longer, meaning that with at least 1000 sampels, the models can learn significant features to recognize those classes.
 
-Out of the three models, the two ResNets behave similarly, although the ResNet trained with DeepFashion2's norm has a better P-R tradeoff for the more represented classes, while the ResNet that uses ImageNet's norm work better for the other classes. As expected, the custom backbone falls off quickly, remarking once again the importance of having a good feature extractor.
+Out of the three models, the two ResNets behave similarly, although the ResNet trained with DeepFashion2's norm has a better P-R tradeoff for the some classes, while the ResNet that uses ImageNet's norm works better for the two least represented classes (short sleeve outwear and sling). As expected, the custom backbone falls off quickly, remarking once again the importance of having a good feature extractor.
 
 ![images/pr_curves.png](images/pr_curves.png)
 
 <img src="images/class_distribution.png" width="75%">
 
-This table shows the mAP by class, and the overall mAP and mAP@0.5. Again, the metrics suffer from the poor perfomance on the least represented classes.
+This table shows the mAP by class, and the overall mAP and mAP@0.5. Again, the metrics suffer from the poor perfomance on the least represented classes. It is important to note that these metrics are also influenced by the parameter initialization, which in this case was not fixed (my bad I guess, also for reproducibility). A better comparison would require multiple training experiments with different initializations and then averaging the resulting metrics; however, these numbers can still give a rough idea of the strenghts and weaknesses of each backbone, and how effective the whole model is for this task.
 
-| Class mAP            | ResNet | ResNet (ImageNet norm) | Custom |
-|----------------------|:------:|:----------------------:|:------:|
-| short sleeve top     | 0.494  |          0.391         | 0.271  |
-| long sleeve top      | 0.377  |          0.322         | 0.135  |
-| short sleeve outwear | 0.000  |          0.000         | 0.000  |
-| long sleeve outwear  | 0.323  |          0.322         | 0.124  |
-| vest                 | 0.310  |          0.250         | 0.073  |
-| sling                | 0.094  |          0.085         | 0.000  |
-| shorts               | 0.460  |          0.329         | 0.200  |
-| trousers             | 0.556  |          0.497         | 0.392  |
-| skirt                | 0.388  |          0.316         | 0.201  |
-| short sleeve dress   | 0.257  |          0.248         | 0.070  |
-| long sleeve dress    | 0.099  |          0.077         | 0.031  |
-| vest dress           | 0.330  |          0.329         | 0.119  |
-| sling dress          | 0.175  |          0.165         | 0.051  |
-|**Total:**                                                       |
-| mAP                  | 0.297  |          0.256         | 0.128  |
-| mAP@0.5              | 0.498  |          0.477         | 0.245  |
+| Class mAP            | ResNet | ResNet (ImageNet norm)  | Custom      |
+|:--------------------:|:------:|:-----------------------:|:-----------:|
+| short sleeve top     | 0.522  |          0.516          |    0.234    |
+| long sleeve top      | 0.347  |          0.337          |    0.096    |
+| short sleeve outwear | 0.013  |          0.0347         |    0.0      |
+| long sleeve outwear  | 0.303  |          0.317          |    0.078    |
+| vest                 | 0.332  |          0.306          |    0.062    |
+| sling                | 0.035  |          0.089          |    0.005    |  
+| shorts               | 0.390  |          0.388          |    0.155    |
+| trousers             | 0.545  |          0.554          |    0.361    |
+| skirt                | 0.396  |          0.382          |    0.157    |
+| short sleeve dress   | 0.349  |          0.326          |    0.083    |
+| long sleeve dress    | 0.162  |          0.150          |    0.022    |
+| vest dress           | 0.358  |          0.352          |    0.1      |  
+| sling dress          | 0.244  |          0.253          |    0.061    |
+|**Total:**                                                             |
+| mAP                  | 0.307  |          0.308          |    0.109    |
+| mAP@0.5              | 0.477  |          0.472          |    0.208    |
 
 
 ## Final considerations
