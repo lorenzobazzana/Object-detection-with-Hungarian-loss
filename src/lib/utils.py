@@ -6,6 +6,8 @@ import tqdm
 import torch
 import torchvision.transforms.v2 as transforms
 
+from torchmetrics.detection.mean_ap import MeanAveragePrecision
+
 def collate(batch):
     images, categories, boxes = zip(*batch)
 
@@ -77,10 +79,15 @@ def train_one_epoch(model, loss_fn, optimizer, dataloader, device):
 
     return epoch_loss/len(dataloader), {k:v/len(dataloader) for k,v in epoch_aux.items()} 
 
-def test(model, loss_fn, dataloader, device):
+def test(model, loss_fn, dataloader, compute_mAP, device):
     model.eval()
     epoch_loss = 0.
     epoch_aux = {"class_loss": 0., "box_loss":0., "giou_loss":0.}
+
+    if compute_mAP:
+        metric = MeanAveragePrecision(iou_type="bbox", box_format="cxcywh", class_metrics=False, extended_summary=True)
+
+
     with torch.no_grad():
         for i, (images, categories, boxes) in tqdm.tqdm(enumerate(dataloader), total=len(dataloader)):
             images = images.to(device)
@@ -93,8 +100,38 @@ def test(model, loss_fn, dataloader, device):
             epoch_loss += loss.item()
             for key in epoch_aux.keys():
                 epoch_aux[key] += aux[key]
+
+            if compute_mAP:
+                _pred_box_batch = pred_boxes.cpu()
+                _score_batch, _pred_label_batch = pred_categories.cpu().softmax(-1).max(-1)
+
+
+                for j in range(images.shape[0]):
+                    _pred_box = _pred_box_batch[j]
+                    _score = _score_batch[j]
+                    _pred_label = _pred_label_batch[j]
+
+                    _pred_box = _pred_box[_pred_label != 0]
+                    _score = _score[ _pred_label != 0]
+                    _pred_label = _pred_label[_pred_label != 0]
+                    metric.update(preds=[{
+                            "boxes": _pred_box,
+                            "scores": _score,
+                            "labels": _pred_label
+                        }],
+                        target=[{
+                            "boxes": boxes[j].cpu(),
+                            "labels": torch.tensor(categories[j].cpu())
+                        }]        
+                    )
     
     model.train()
+
+    if compute_mAP:
+        res = metric.compute()
+        metrics = ["map", "map_50"]
+        for m in metrics:
+            print(f"model - {m}:{res[m]:.3f}")
 
     return epoch_loss/len(dataloader), {k:v/len(dataloader) for k,v in epoch_aux.items()}
 
@@ -116,7 +153,7 @@ def train(model, loss_fn, optimizer, dataloader, device, n_epochs, use_wandb=Fal
         print(f"Epoch loss (train): {train_epoch_loss}")
         train_losses.append(train_epoch_loss)
 
-        test_epoch_loss, test_aux = test(model, loss_fn, dataloader["test"], device)
+        test_epoch_loss, test_aux = test(model, loss_fn, dataloader["test"], True, device)
         print(f"Epoch loss (test): {test_epoch_loss}")
         test_losses.append(test_epoch_loss)
         loss_fn.step()

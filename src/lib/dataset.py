@@ -5,7 +5,7 @@ import numpy as np
 from PIL import Image
 import torch
 from torch.utils.data import Dataset
-from torchvision.tv_tensors import BoundingBoxes
+from torchvision.tv_tensors import BoundingBoxes, BoundingBoxFormat
 from torchvision.transforms.v2.functional import convert_bounding_box_format, resize
 
 class FashionDataset(Dataset):
@@ -35,8 +35,7 @@ class FashionDataset(Dataset):
 
         #classes = [c-1 for c in classes] # In the GT, the classes go from 1 to 13
         classes = np.array(classes)
-        #bboxes = self.resize_box(bboxes, w, h)
-        bboxes = BoundingBoxes(bboxes, format="XYXY", canvas_size=(h,w), dtype=torch.float32)
+        bboxes = BoundingBoxes(bboxes, format=BoundingBoxFormat.XYXY, canvas_size=(h,w), dtype=torch.float32)
 
         if self.transforms is not None:
             transforms_all = self.transforms.get("all", None)
@@ -47,7 +46,8 @@ class FashionDataset(Dataset):
             if transforms_img is not None:
                 img = transforms_img(img)
             h, w = img.shape[-2:]
-        bboxes = convert_bounding_box_format(bboxes, new_format="CXCYWH")
+
+        bboxes = convert_bounding_box_format(bboxes, new_format=BoundingBoxFormat.CXCYWH)
         bboxes = self.resize_box(bboxes, w, h)
 
         return img, classes, bboxes
