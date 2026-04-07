@@ -40,7 +40,7 @@ The following images show the behavior of the three backbones on random images f
 
 ![images/example_2.pdf](images/example_2_combined.png)
 
-Both the ResNet34 backbones behave well and focus on meaningful parts of the image. In the second image, the first backbone detects an additional "skirt" item on top of the trousers. The double detection is also present in the third image, where the model detects "shorts" and "trousers", probably because of the similar color of the shorts compared to the girl's skin tone. Both models also detect a "short sleeve top" and a "long sleeve top", probably because those two classes are not well separated in the training data.
+Both the ResNet34 backbones behave well and focus on meaningful parts of the image. In the first image, the first backbone detects an the "long sleeve top" twice, but with slightly different boxes. The double detection is also present in the third image, where the model detects "shorts" twice, once with a box that is very close the to ground truth, and the secon time with a larger box, probably because of the similar color of the shorts compared to the girl's skin tone. Both models also detect a "short sleeve top" and a "long sleeve top", probably because those two classes are not well separated in the training data.
 
 ![images/example_3.pdf](images/example_3_combined.png)
 
@@ -77,6 +77,19 @@ This table shows the mAP by class, and the overall mAP and mAP@0.5. Again, the m
 |**Total:**                                                             |
 | mAP                  | 0.307  |          0.308          |    0.109    |
 | mAP@0.5              | 0.477  |          0.472          |    0.208    |
+
+
+## Comparison with the original DETR
+
+There are some small differences between this implementation and Facebook's original DETR, namely the image preprocessing (here I downsample images to a size of 224x224, while DETR resizes at multiple scales, and keeps the original aspect ratio). Another difference is that DETR uses a full Transformer with 6 Encoder and 6 Decoder layers after the feature extraction backbone, while we only use 4-layer Decoder. The main impact these differences make are the inference speed, which is naturally lower on this implementation, and possibly the model's precision, since smaller objects are more easily recognizable in bigger images.
+
+The following image shows a comparison between the PR curves of several DETR variations trained from scratch on this dataset, and my implementation trained with the ImageNet norm (see table above). Because of hardware limitations, I decided to also train the DETR models with the fixed image size of 224x224, so the plots do not tell how much benefit the models take form the multi-scale training schedule (or if there is at all), but we can still make some considerations on the tradeoff between having a full Transformer or just a smaller Decoder for query extraction.
+
+![PR curves DETR](images/pr_curves_DETR.png)
+
+Surprisingly, we can see that there is not much difference between the various models. The default DETR (with the ResNet50 backbone) generally performs better (as expected), and my implementation is somewhat similar to the DETR model with the same ResNet34 backbone and no auxiliary losses used during training, even though my model is much smaller (around 24M parameters compared to 39M), so *for this particular training setting and amount of data*, using only the Decoder instead of the full Transformer (and reducing the layer count) is actually a better choice, as it is similarly good in terms of precision, but much faster (my model achieves around 18 fps of pure inference speed on the M1 Pro with Metal Shader, while DETR with a ResNet34 backbone achieves 8 fps, but take these numbers with a grain of salt).
+
+To train DETR on DeepFashion2, take a look at the `README.MD` in the folder `detr_comparison`.
 
 
 ## Final considerations
