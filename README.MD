@@ -89,7 +89,15 @@ The following image shows a comparison between the PR curves of several DETR var
 
 Surprisingly, we can see that there is not much difference between the various models. The default DETR (with the ResNet50 backbone) generally performs better (as expected), and my implementation is somewhat similar to the DETR model with the same ResNet34 backbone and no auxiliary losses used during training, even though my model is much smaller (around 24M parameters compared to 39M), so *for this particular training setting and amount of data*, using only the Decoder instead of the full Transformer (and reducing the layer count) is actually a better choice, as it is similarly good in terms of precision, but much faster (my model achieves around 18 fps of pure inference speed on the M1 Pro with Metal Shader, while DETR with a ResNet34 backbone achieves 8 fps, but take these numbers with a grain of salt).
 
-To train DETR on DeepFashion2, take a look at the `README.MD` in the folder `detr_comparison`.
+This table shows the mAP for the models in the plot:
+|                 Model                  |  mAP  |  mAP@0.5  |
+|:--------------------------------------:|:-----:|:---------:|
+| Default DETR                           | 0.322 |   0.466   |
+| DETR w/ ResNet34 backbone              | 0.300 |   0.452   |
+| DETR w/ ResNet34 backbone, no aux loss | 0.289 |   0.437   |
+| This implementation                    | 0.308 |   0.472   |
+
+To train DETR on DeepFashion2, take a look at the `README.md` in the folder `detr_comparison`.
 
 
 ## Final considerations
